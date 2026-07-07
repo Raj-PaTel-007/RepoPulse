@@ -7,7 +7,7 @@
 [![SQL](https://img.shields.io/badge/SQL-PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](#)
 [![Normalized](https://img.shields.io/badge/Normalization-3NF%20%2F%20BCNF-2ea44f?style=for-the-badge)](#)
 [![Status](https://img.shields.io/badge/Status-Complete-blue?style=for-the-badge)](#)
-[![License](https://img.shields.io/badge/License-MIT-lightgrey?style=for-the-badge)](#)
+
 
 *Modeling the entire backbone of a Git hosting platform — users, repos, commits, branches, pull requests, issues, and social features — as a clean, normalized relational schema.*
 
@@ -126,33 +126,6 @@ More queries cover follower graphs, PR review status, issue labels, file version
 
 ---
 
-## 🚀 Getting Started
-
-```bash
-# Clone the repository
-git clone https://github.com/Raj-PaTel-007/RepoPulse.git
-cd RepoPulse
-
-# Create the schema (PostgreSQL)
-psql -U your_username -d your_database -f DDL.sql
-
-# Load sample data
-psql -U your_username -d your_database -f seed.sql
-
-# Run the analytical queries
-psql -U your_username -d your_database -f SQL_Queries
-```
-
-> Built with PostgreSQL-specific syntax (`GENERATED ALWAYS AS IDENTITY`, `JSON` columns, `CHECK` constraints).
-
----
-
-## 🛠️ Tech Stack
-
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=flat-square&logo=postgresql&logoColor=white)
-![SQL](https://img.shields.io/badge/SQL-DDL%20%2F%20DML-orange?style=flat-square)
-
----
 
 ## 🗺️ Diagrams
 
