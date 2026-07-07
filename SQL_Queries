@@ -1,0 +1,109 @@
+
+SQL Queries:
+
+-- Top Active Users with Commit + Repo
+SELECT u.username,
+COUNT(DISTINCT c.commit_id) + COUNT(DISTINCT r.repository_id) AS activity_score
+FROM users u
+LEFT JOIN commits c ON u.user_id = c.author_user_id
+LEFT JOIN repositories r ON u.user_id = r.owner_user_id
+GROUP BY u.user_id
+ORDER BY activity_score DESC;
+
+-- User with UserDetails, Follower, Following, #Repos, #commits, #PRs, #Stars, #Ketli Repo ma as a collaborator chhe
+
+SELECT 
+    u.*,
+    COUNT(DISTINCT f1.follower_user_id) AS followers,
+    COUNT(DISTINCT f2.following_user_id) AS following,
+    COUNT(DISTINCT r.repository_id) AS repos,
+    COUNT(DISTINCT c.commit_id) AS commits,
+    COUNT(DISTINCT pr.pull_request_id) AS prs,
+    COUNT(DISTINCT s.user_id) AS stars,
+    COUNT(DISTINCT rc.repository_id) AS collaborations
+FROM users u
+LEFT JOIN user_follows f1 ON u.user_id = f1.following_user_id
+LEFT JOIN user_follows f2 ON u.user_id = f2.follower_user_id
+LEFT JOIN repositories r ON u.user_id = r.owner_user_id
+LEFT JOIN commits c ON u.user_id = c.author_user_id
+LEFT JOIN pull_requests pr ON u.user_id = pr.created_by_user_id
+LEFT JOIN repo_stars s ON r.repository_id = s.repository_id
+LEFT JOIN repo_collaborators rc ON u.user_id = rc.user_id
+WHERE u.user_id = 1;
+
+
+
+-- Get User Profile
+SELECT * FROM users WHERE user_id = 1;
+
+-- Get Public Repos
+SELECT * FROM repositories WHERE visibility_type = 'PUBLIC';
+
+-- Get all Users with Repo Count
+SELECT u.user_id, u.username, COUNT(r.repository_id) AS repo_count FROM users u LEFT JOIN repositories r ON u.user_id = r.owner_user_id
+GROUP BY u.user_id, u.username;
+
+-- Get Follower Count For a User
+SELECT u.user_id, u.username, COUNT(f.follower_user_id) AS followers FROM users u LEFT JOIN user_follows f
+ON u.user_id = f.following_user_id GROUP BY u.user_id, u.username;
+-- Get Who follows each other
+SELECT f1.follower_user_id, f1.following_user_id FROM user_follows f1 JOIN user_follows f2
+ON f1.follower_user_id = f2.following_user_id AND f1.following_user_id = f2.follower_user_id;
+
+-- Top 5 Most starred repos
+SELECT r.repository_name, COUNT(s.user_id) AS stars FROM repositories r LEFT JOIN repo_stars s
+ON r.repository_id = s.repository_id GROUP BY r.repository_id
+ORDER BY stars DESC LIMIT 5;
+
+-- Get Commit History of a Repo
+SELECT c.commit_id, c.commit_message, u.username FROM commits c JOIN users u
+ON c.author_user_id = u.user_id WHERE c.repository_id = 1 ORDER BY c.committed_at DESC;
+
+-- Get Files in a Repo
+SELECT file_name, file_path FROM repo_files WHERE repository_id = 1;
+
+-- Get File Version History
+SELECT fv.file_version_id, fv.change_type, c.commit_id FROM file_versions fv JOIN commits c ON fv.commit_id = c.commit_id
+WHERE fv.file_id = 1;
+
+-- Get all PRs with creator
+SELECT pr.pull_request_id, pr.title, u.username, u.user_id FROM pull_requests pr JOIN users u ON pr.created_by_user_id = u.user_id;
+
+-- Get PRs with review status
+SELECT pr.pull_request_id, r.review_status FROM pull_requests pr LEFT JOIN pull_request_reviews r
+ON pr.pull_request_id = r.pull_request_id;
+
+-- Get Issues with user
+SELECT i.issue_id, i.title, u.username, u.user_id FROM repo_issues i LEFT JOIN users u ON i.assigned_to_user_id = u.user_id;
+
+-- Get Issues with label
+SELECT i.issue_id, l.label_name FROM repo_issues i
+JOIN issue_label_mappings m ON i.issue_id = m.issue_id JOIN issue_labels l ON m.label_id = l.label_id;
+
+-- Get Comments on an Issue
+SELECT u.username, c.comment_body FROM discussion_comments c JOIN users u ON c.user_id = u.user_id
+WHERE c.issue_id = 1;
+
+-- Get Parent - Child Comments (Comments on comments)
+SELECT c1.comment_id, c2.comment_id AS reply_id FROM discussion_comments c1 LEFT JOIN discussion_comments c2
+ON c1.comment_id = c2.parent_comment_id;
+
+-- Get Unread Notifications
+SELECT * FROM notifications WHERE is_read = FALSE;
+
+-- Get Top Active Users
+SELECT u.username, COUNT(DISTINCT c.commit_id) + COUNT(DISTINCT r.repository_id) AS activity_score FROM users u
+LEFT JOIN commits c ON u.user_id = c.author_user_id LEFT JOIN repositories r ON u.user_id = r.owner_user_id GROUP BY u.user_id
+ORDER BY activity_score DESC;
+
+-- Get Repos with most Contributors
+SELECT r.repository_name, COUNT(DISTINCT c.author_user_id) AS contributors FROM repositories r JOIN commits c ON r.repository_id = c.repository_id
+GROUP BY r.repository_id ORDER BY contributors DESC;
+
+-- Get Collaborators of a Repo
+SELECT u.username, rc.access_role FROM repo_collaborators rc JOIN users u ON rc.user_id = u.user_id
+WHERE rc.repository_id = 1;
+
+-- Get Issues linked with PRs
+SELECT pr.pull_request_id, i.issue_id FROM pull_request_issue_links l JOIN pull_requests pr ON l.pull_request_id = pr.pull_request_id
+JOIN repo_issues i ON l.issue_id = i.issue_id;
